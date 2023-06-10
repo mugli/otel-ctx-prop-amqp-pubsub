@@ -1,0 +1,20 @@
+{
+  "name": "otel-ctx-prop-amqp-pubsub",
+  "version": "0.0.1",
+  "description": "",
+  "main": "node_receive_logs.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "private": "true",
+  "author": "Mehdi Hasan Khan <mhasan@omicronlab.com>",
+  "license": "WTFPL",
+  "dependencies": {
+    "@opentelemetry/api": "^1.4.1",
+    "@opentelemetry/instrumentation": "^0.40.0",
+    "@opentelemetry/instrumentation-amqplib": "^0.32.4",
+    "@opentelemetry/instrumentation-http": "^0.40.0",
+    "@opentelemetry/sdk-node": "^0.40.0",
+    "amqplib": "^0.10.3"
+  }
+}

@@ -1,0 +1,58 @@
+version: "3.9"
+services:
+  rabbitmq:
+    image: rabbitmq:management
+    ports:
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_running"]
+      interval: 1s
+      timeout: 3s
+      retries: 100
+
+  ruby_emit_logs:
+    build:
+      context: .
+      dockerfile: ./ruby_emit_logs.dockerfile
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - SERVICE_NAME=ruby_emit_logs
+      - ENABLE_OTEL_INSTRUMENTATION=true
+      - RABBITMQ_URL=amqp://rabbitmq
+
+  http_logger:
+    build:
+      context: .
+      dockerfile: ./http_logger.dockerfile
+
+  node_receive_logs:
+    build:
+      context: .
+      dockerfile: ./node_receive_logs.dockerfile
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      http_logger:
+        condition: service_started
+    environment:
+      - SERVICE_NAME=node_receive_logs
+      - ENABLE_OTEL_INSTRUMENTATION=true
+      - RABBITMQ_URL=amqp://rabbitmq
+      - HTTP_LOGGER_URL=http://http_logger:3000
+
+  ruby_receive_logs:
+    build:
+      context: .
+      dockerfile: ./ruby_receive_logs.dockerfile
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      http_logger:
+        condition: service_started
+    environment:
+      - SERVICE_NAME=ruby_receive_logs
+      - ENABLE_OTEL_INSTRUMENTATION=true
+      - RABBITMQ_URL=amqp://rabbitmq
+      - HTTP_LOGGER_URL=http://http_logger:3000
